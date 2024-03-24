@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <windows.h>
 
 void generateRandomMatrix(float** matrix, float* vector, int n) {
     srand(time(NULL));
@@ -17,22 +16,18 @@ void generateRandomMatrix(float** matrix, float* vector, int n) {
 double calculateDotProduct(float** matrix, float* vector, int n) {
     float*  dotProduct = (float*)malloc(n * sizeof(float));
     
-    LARGE_INTEGER frequency;
-    LARGE_INTEGER start;
-    LARGE_INTEGER end;
+    struct timespec start, end;
     
-    QueryPerformanceFrequency(&frequency);
-    QueryPerformanceCounter(&start); // Start the timer
+    clock_gettime(CLOCK_MONOTONIC, &start); // Start the timer
     
-    for (int col = 0; col < n; col++) dotProduct[col] = 0;
     for (int row = 0; row < n; row++) {
         for (int col = 0; col < n; col++) {
             dotProduct[col] += matrix[row][col] * vector[row];
         }
     }
     
-    QueryPerformanceCounter(&end); // Stop the timer
-    double time_taken = (double)(end.QuadPart - start.QuadPart) / frequency.QuadPart; // Calculate the time taken
+    clock_gettime(CLOCK_MONOTONIC, &end); // Stop the timer
+    double time_taken = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9; // Calculate the time taken
     
     return time_taken;
 }
